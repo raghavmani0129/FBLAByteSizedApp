@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controller.MainController">
+
+    <!-- Navigation Bar w/ Categories and Filters -->
+    <top>
+        <VBox>
+
+            <HBox spacing="10" style="-fx-background-color: #f0f0f0;">
+                <padding>
+                    <Insets top="10" right="10" bottom="10" left="10" />
+                </padding>
+                <ToggleButton fx:id="allTab" text="All" onAction="#handleCategoryTab" />
+                <ToggleButton fx:id="foodTab" text="Food &amp; Dining" onAction="#handleCategoryTab" />
+                <ToggleButton fx:id="retailTab" text="Retail" onAction="#handleCategoryTab" />
+                <ToggleButton fx:id="servicesTab" text="Services" onAction="#handleCategoryTab" />
+                <ToggleButton fx:id="healthTab" text="Health &amp; Wellness" onAction="#handleCategoryTab" />
+                <ToggleButton fx:id="specialtyTab" text="Specialty Shops" onAction="#handleCategoryTab" />
+                <ToggleButton fx:id="professionalsTab" text="Local Professionals" onAction="#handleCategoryTab" />
+                
+                <Region HBox.hgrow="ALWAYS" />
+                
+                <!-- Search  -->
+                <TextField fx:id="searchField" promptText="Search businesses..." onKeyReleased="#handleSearch" prefWidth="220" />
+                <Region minWidth="10" />
+
+                <ComboBox fx:id="sortMode" prefWidth="160" />
+                <Button fx:id="reportButton" text="Report" />
+                <Region minWidth="10" />
+
+                <CheckBox fx:id="favoritesOnly" text="Favorites Only" onAction="#handleFavoritesToggle" />
+                <CheckBox fx:id="dealsOnly" text="Deals Only" onAction="#handleDealsToggle" />
+            </HBox>
+        </VBox>
+    </top>
+
+    <!-- main layout-->
+    <center>
+        <SplitPane dividerPositions="0.4">
+            
+            <!--  List of Businesses -->
+            <VBox>
+                <padding>
+                    <Insets top="10" right="10" bottom="10" left="10" />
+                </padding>
+                <Label text="Businesses" style="-fx-font-size: 14px; -fx-font-weight: bold;" />
+                <ListView fx:id="businessList" VBox.vgrow="ALWAYS" />
+
+                <Label text="Recommended for you" style="-fx-font-size: 14px; -fx-font-weight: bold;" />
+                <ListView fx:id="recommendedList" prefHeight="140" />
+            </VBox>
+
+            <!-- Reviews + Info about Business -->
+            <ScrollPane fitToWidth="true">
+                <VBox spacing="15">
+                    <padding>
+                        <Insets top="15" right="15" bottom="15" left="15" />
+                    </padding>
+                    <!-- Business Basic Info -->
+                    <VBox spacing="5">
+                        <Label fx:id="nameLabel" text="Select a business" 
+                               style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+                        <Label fx:id="addressLabel" text="" />
+                        <Label fx:id="ratingLabel" text="" style="-fx-font-size: 14px; -fx-text-fill: #0066cc;" />
+                        <TextArea fx:id="descriptionArea" editable="false" wrapText="true" 
+                                  prefRowCount="3" prefWidth="500" />
+            <Button fx:id="favoriteButton" text="☆ Favorite" 
+                onAction="#toggleFavorite" 
+                style="-fx-background-color: #f0f0f0;" />
+                    </VBox>
+
+                    <!-- Deals -->
+                    <VBox spacing="10">
+                        <Label text="Current Deals" style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+                        <VBox fx:id="dealsBox" spacing="10" />
+                    </VBox>
+
+                    <!-- Reviews  -->
+                    <VBox spacing="10">
+                        <Label text="Reviews" style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+                        <ScrollPane fx:id="reviewsScrollPane" fitToWidth="true" prefHeight="200">
+                            <VBox fx:id="reviewsBox" spacing="10" />
+                        </ScrollPane>
+                    </VBox>
+
+                    <!-- Submit Review -->
+                    <VBox spacing="10" style="-fx-background-color: #f9f9f9; -fx-background-radius: 5;">
+                        <padding>
+                            <Insets top="15" right="15" bottom="15" left="15" />
+                        </padding>
+                        <Label text="Write a Review" style="-fx-font-size: 14px; -fx-font-weight: bold;" />
+                        
+                        <!-- Star Rating -->
+                        <HBox spacing="5">
+                            <Label text="Rating:" />
+                            <ToggleButton fx:id="star1" text="1★" />
+                            <ToggleButton fx:id="star2" text="2★" />
+                            <ToggleButton fx:id="star3" text="3★" />
+                            <ToggleButton fx:id="star4" text="4★" />
+                            <ToggleButton fx:id="star5" text="5★" />
+                        </HBox>
+                        
+                        <!-- Written review text  -->
+                        <TextField fx:id="reviewTextArea" promptText="Write your review (optional)" 
+                                   prefWidth="500" />
+                        
+                        <Button fx:id="submitReviewButton" text="Submit Review" 
+                                style="-fx-background-color: #0066cc; -fx-text-fill: white;" />
+                    </VBox>
+                </VBox>
+            </ScrollPane>
+
+        </SplitPane>
+    </center>
+</BorderPane>

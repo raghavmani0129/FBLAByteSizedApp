@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="12"
+      alignment="CENTER"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controller.LoginController">
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <Label text="Byte-Sized Business Boost"
+           style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+
+    <TextField fx:id="emailField"
+               promptText="Email"
+               maxWidth="260"/>
+
+    <PasswordField fx:id="passwordField"
+                   promptText="Password"
+                   maxWidth="260"/>
+
+    <Label fx:id="captchaLabel"
+           text="CAPTCHA"
+           style="-fx-font-weight: bold;" />
+
+    <TextField fx:id="captchaField"
+               promptText="Solve CAPTCHA"
+               maxWidth="260"/>
+
+    <Button text="Login"
+            onAction="#handleLogin"
+            maxWidth="260"/>
+
+    <Button text="Sign Up"
+            onAction="#handleSignup"
+            maxWidth="260"/>
+
+    <Label fx:id="errorLabel"
+           textFill="red"
+           wrapText="true"
+           maxWidth="260"/>
+
+</VBox>
