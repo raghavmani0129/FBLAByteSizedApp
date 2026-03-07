@@ -1,0 +1,92 @@
+[
+  {
+    "businessName": "FreshStart Chiropractic",
+    "description": "15% off for students",
+    "expirationDate": "2026-04-15"
+  },
+  {
+    "businessName": "Cedar & Stone Law Firm",
+    "description": "20% off select items",
+    "expirationDate": "2026-04-09"
+  },
+  {
+    "businessName": "Sunbeam Caf\u00e9",
+    "description": "Free gift with purchase",
+    "expirationDate": "2026-04-25"
+  },
+  {
+    "businessName": "Circuit Corner Electronics",
+    "description": "Free add-on with any order",
+    "expirationDate": "2026-04-23"
+  },
+  {
+    "businessName": "The Velvet Quill",
+    "description": "$5 off orders over $25",
+    "expirationDate": "2026-04-22"
+  },
+  {
+    "businessName": "MindSpring Counseling Services",
+    "description": "Free consultation this week",
+    "expirationDate": "2026-04-16"
+  },
+  {
+    "businessName": "Hearth & Home Mercantile",
+    "description": "Bundle deal: save $10",
+    "expirationDate": "2026-04-14"
+  },
+  {
+    "businessName": "Pinnacle Realty Partners",
+    "description": "Happy hour specials",
+    "expirationDate": "2026-05-12"
+  },
+  {
+    "businessName": "Artisan Spice & Herb Co.",
+    "description": "Free add-on with any order",
+    "expirationDate": "2026-04-13"
+  },
+  {
+    "businessName": "Golden Wok Express",
+    "description": "20% off select items",
+    "expirationDate": "2026-05-15"
+  },
+  {
+    "businessName": "HarborTech Computer Repair",
+    "description": "Happy hour specials",
+    "expirationDate": "2026-05-05"
+  },
+  {
+    "businessName": "Silver Lining Jewelers",
+    "description": "$5 off orders over $25",
+    "expirationDate": "2026-04-10"
+  },
+  {
+    "businessName": "GreenRoot Herbal Apothecary",
+    "description": "15% off for students",
+    "expirationDate": "2026-04-09"
+  },
+  {
+    "businessName": "VitalBloom Yoga Studio",
+    "description": "$5 off orders over $25",
+    "expirationDate": "2026-04-13"
+  },
+  {
+    "businessName": "Oak & Ivy Bookshop",
+    "description": "Free consultation this week",
+    "expirationDate": "2026-04-21"
+  },
+  {
+    "businessName": "Bloom & Basket Florals",
+    "description": "15% off for students",
+    "expirationDate": "2026-04-22"
+  },
+  {
+    "businessName": "Wanderlust Maps & More",
+    "description": "$5 off orders over $25",
+    "expirationDate": "2026-05-10"
+  },
+  {
+    "businessName": "Peak Performance Fitness Lab",
+    "description": "Free gift with purchase",
+    "expirationDate": "2026-04-09"
+  }
+]

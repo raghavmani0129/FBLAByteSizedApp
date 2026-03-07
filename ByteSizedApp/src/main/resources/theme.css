@@ -1,0 +1,305 @@
+/* ByteSizedApp Theme (2026) */
+
+.root {
+    -fx-font-family: "Inter", "Segoe UI", "SF Pro Display", "System";
+
+    /* Brand */
+    -color-1: #2A42B8;
+    -color-2: #B8A02A;
+
+    /* Neutrals */
+    -bg: #F6F8FC;
+    -surface: rgba(255, 255, 255, 0.98);
+    -surface-2: rgba(245, 248, 252, 0.95);
+    -surface-light: rgba(255, 255, 255, 0.98);
+    -surface-light-2: rgba(245, 248, 252, 0.95);
+    -border: rgba(11, 18, 32, 0.12);
+    -text: #0B1220;
+    -muted: rgba(11, 18, 32, 0.70);
+    -text-dark: #0B1220;
+    -muted-dark: rgba(11, 18, 32, 0.70);
+
+    -fx-background-color:
+            radial-gradient(center 20% 0%, radius 75%, rgba(42,66,184,0.14), transparent),
+            radial-gradient(center 80% 10%, radius 70%, rgba(184,160,42,0.12), transparent),
+            linear-gradient(to bottom, #F6F8FC, #EEF2FA);
+
+    -fx-text-fill: -text;
+}
+
+/* Typography */
+.label {
+    -fx-text-fill: -text;
+}
+
+.h1 {
+    -fx-font-size: 22px;
+    -fx-font-weight: 800;
+    -fx-text-fill: -text;
+}
+
+.h2 {
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -text;
+}
+
+.subtle {
+    -fx-text-fill: -muted;
+}
+
+/* Containers */
+.card {
+    -fx-background-color: -surface;
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+    -fx-border-color: -border;
+    -fx-effect: dropshadow(gaussian, rgba(11,18,32,0.14), 26, 0.25, 0, 12);
+}
+
+.card-inner {
+    -fx-background-color: -surface-2;
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-border-color: rgba(11,18,32,0.10);
+}
+
+.topbar {
+    -fx-background-color: rgba(255,255,255,0.75);
+    -fx-border-color: rgba(11,18,32,0.10);
+    -fx-border-width: 0 0 1 0;
+}
+
+/* Inputs */
+.text-field, .password-field, .text-area {
+    -fx-background-color: -surface-light;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: rgba(11,18,32,0.18);
+    -fx-text-fill: -text-dark;
+    -fx-prompt-text-fill: rgba(11,18,32,0.55);
+    -fx-highlight-fill: rgba(42,66,184,0.55);
+    -fx-highlight-text-fill: white;
+    -fx-padding: 10 12 10 12;
+}
+
+.text-area {
+    -fx-control-inner-background: -surface-light;
+}
+
+.text-field:focused, .password-field:focused, .text-area:focused {
+    -fx-border-color: rgba(42,66,184,0.75);
+    -fx-background-color: -surface-light;
+}
+
+/* Buttons */
+.button {
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-padding: 10 14 10 14;
+    -fx-font-weight: 700;
+    -fx-cursor: hand;
+}
+
+.button.primary {
+    -fx-background-color: linear-gradient(to right, -color-1, derive(-color-1, 18%));
+    -fx-text-fill: -text-dark;
+    -fx-effect: dropshadow(gaussian, rgba(42,66,184,0.45), 18, 0.25, 0, 8);
+}
+
+.button.primary:hover {
+    -fx-background-color: linear-gradient(to right, derive(-color-1, 10%), derive(-color-1, 24%));
+}
+
+.button.secondary {
+    -fx-background-color: -surface-light-2;
+    -fx-border-color: rgba(11,18,32,0.18);
+    -fx-text-fill: -text-dark;
+}
+
+.button.secondary:hover {
+    -fx-background-color: -surface-light;
+}
+
+.button.accent {
+    -fx-background-color: linear-gradient(to right, -color-2, derive(-color-2, 14%));
+    -fx-text-fill: white;
+}
+
+/* Toggle buttons (category tabs / stars) */
+.toggle-button {
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-background-color: -surface-light-2;
+    -fx-border-color: rgba(11,18,32,0.18);
+    -fx-text-fill: -text-dark;
+    -fx-padding: 8 12 8 12;
+    -fx-cursor: hand;
+}
+
+.toggle-button:selected {
+    -fx-background-color: rgba(42,66,184,0.35);
+    -fx-border-color: rgba(42,66,184,0.65);
+    -fx-text-fill: -text;
+}
+
+/* Checkboxes */
+.check-box {
+    -fx-text-fill: -muted;
+}
+
+.check-box .box {
+    -fx-background-color: -surface-light-2;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-border-color: rgba(11,18,32,0.18);
+}
+
+.check-box:selected .mark {
+    -fx-background-color: -color-2;
+}
+
+.check-box.favorites-toggle:selected .mark {
+    -fx-background-color: -color-2;
+}
+
+.check-box.deals-toggle:selected .mark {
+    -fx-background-color: -color-1;
+}
+
+/* ComboBox */
+.combo-box {
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-background-color: -surface-light;
+    -fx-border-color: rgba(11,18,32,0.18);
+}
+
+.combo-box .list-cell {
+    -fx-text-fill: -text-dark;
+    -fx-background-color: transparent;
+}
+
+.combo-box-popup .list-view {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: rgba(11,18,32,0.12);
+}
+
+/* Lists */
+.list-view {
+    -fx-background-color: transparent;
+    -fx-border-color: rgba(11,18,32,0.12);
+    -fx-border-radius: 14;
+    -fx-background-radius: 14;
+}
+
+.list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: -text;
+    -fx-padding: 10 12 10 12;
+}
+
+.list-cell:filled:hover {
+    -fx-background-color: rgba(255,255,255,0.06);
+}
+
+.list-cell:filled:selected {
+    -fx-background-color: rgba(42,66,184,0.28);
+    -fx-background-insets: 0;
+}
+
+/* Scroll panes */
+.scroll-pane {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* SplitPane divider */
+.split-pane:horizontal > .split-pane-divider {
+    -fx-background-color: rgba(11,18,32,0.10);
+}
+
+/* Dialogs */
+.dialog-pane {
+    -fx-background-color: white;
+}
+
+.dialog-pane .label {
+    -fx-text-fill: rgba(11,18,32,0.92);
+}
+
+.dialog-pane .button {
+    -fx-background-color: -surface-light-2;
+    -fx-border-color: rgba(11,18,32,0.18);
+    -fx-text-fill: -text-dark;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-padding: 10 14 10 14;
+    -fx-font-weight: 700;
+}
+
+.report-area {
+    -fx-background-color: -surface-light;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: rgba(11,18,32,0.18);
+    -fx-text-fill: -text-dark;
+    -fx-prompt-text-fill: rgba(11,18,32,0.55);
+    -fx-padding: 10 12 10 12;
+}
+
+/* Business details components */
+.button.favorited {
+    -fx-background-color: #FFD54A;
+    -fx-text-fill: -text-dark;
+}
+
+.button.selection-action {
+    -fx-background-color: rgba(42,66,184,0.35);
+    -fx-border-color: rgba(42,66,184,0.65);
+    -fx-text-fill: -text-dark;
+}
+
+.deal-box {
+    -fx-background-color: rgba(255,255,255,0.75);
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: rgba(11,18,32,0.10);
+    -fx-padding: 10;
+}
+
+.deal-title {
+    -fx-text-fill: -color-1;
+    -fx-font-weight: 800;
+}
+
+.review-box {
+    -fx-background-color: rgba(255,255,255,0.75);
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: rgba(11,18,32,0.10);
+    -fx-padding: 10;
+}
+
+.review-stars {
+    -fx-text-fill: -color-2;
+    -fx-font-size: 14px;
+}
+
+/* Exceptions per request */
+.check-box.favorites-toggle {
+    -fx-text-fill: -color-2;
+}
+
+.check-box.deals-toggle {
+    -fx-text-fill: -color-1;
+}
+
+.star-icon {
+    -fx-fill: -color-2;
+}
