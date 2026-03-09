@@ -15,7 +15,7 @@
         <Insets top="20" right="20" bottom="20" left="20"/>
     </padding>
 
-    <Label text="Byte-Sized Business Boost" styleClass="h1" />
+    <Label text="Shop Search" styleClass="h1" />
 
     <TextField fx:id="emailField"
                promptText="Email"

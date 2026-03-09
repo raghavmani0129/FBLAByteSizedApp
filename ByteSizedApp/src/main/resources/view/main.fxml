@@ -15,6 +15,8 @@
                 <padding>
                     <Insets top="10" right="10" bottom="10" left="10" />
                 </padding>
+                <Label text="Shop Search" styleClass="h2" />
+                <Region minWidth="10" />
                 <ToggleButton fx:id="allTab" text="All" onAction="#handleCategoryTab" />
                 <ToggleButton fx:id="foodTab" text="Food &amp; Dining" onAction="#handleCategoryTab" />
                 <ToggleButton fx:id="retailTab" text="Retail" onAction="#handleCategoryTab" />
@@ -25,12 +27,14 @@
                 
                 <Region HBox.hgrow="ALWAYS" />
                 
-                <!-- Search  -->
-                <TextField fx:id="searchField" promptText="Search businesses..." onKeyReleased="#handleSearch" prefWidth="220" />
+                <!-- Location + Search  -->
+                <TextField fx:id="locationField" promptText="Town or ZIP..." onKeyReleased="#handleLocationSearch" prefWidth="160" />
+                <TextField fx:id="searchField" promptText="Shop Search..." onKeyReleased="#handleSearch" prefWidth="220" />
                 <Region minWidth="10" />
 
                 <ComboBox fx:id="sortMode" prefWidth="160" />
                 <Button fx:id="reportButton" text="Report" styleClass="accent" />
+                <Button fx:id="faqButton" text="Help Center" styleClass="secondary" />
                 <Region minWidth="10" />
 
                 <CheckBox fx:id="favoritesOnly" text="Favorites Only" onAction="#handleFavoritesToggle" styleClass="favorites-toggle" />
@@ -48,11 +52,11 @@
                 <padding>
                     <Insets top="10" right="10" bottom="10" left="10" />
                 </padding>
-                <Label text="Businesses" styleClass="h2" />
-                <ListView fx:id="businessList" VBox.vgrow="ALWAYS" />
-
                 <Label text="Recommended for you" styleClass="h2" />
                 <ListView fx:id="recommendedList" prefHeight="140" />
+
+                <Label text="Businesses" styleClass="h2" />
+                <ListView fx:id="businessList" VBox.vgrow="ALWAYS" />
             </VBox>
 
             <!-- Reviews + Info about Business -->

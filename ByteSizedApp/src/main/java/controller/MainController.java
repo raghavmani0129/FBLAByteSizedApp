@@ -1,15 +1,24 @@
 package controller;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.geometry.Bounds;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.control.*;
+import javafx.scene.Node;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
+import javafx.stage.Screen;
+import javafx.stage.Window;
 import model.Business;
 import model.Deal;
+import model.ForumReply;
+import model.ForumThread;
 import model.Review;
 import model.User;
 import util.DataManager;
@@ -20,6 +29,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.Set;
 
 /**
@@ -45,6 +56,7 @@ public class MainController {
     // Sort + report + recommendations
     @FXML private ComboBox<String> sortMode;
     @FXML private Button reportButton;
+    @FXML private Button faqButton;
     @FXML private ListView<Business> recommendedList;
 
     // Business List
@@ -60,6 +72,7 @@ public class MainController {
     @FXML private VBox reviewsBox;
     @FXML private ScrollPane reviewsScrollPane;
     @FXML private TextField searchField;
+    @FXML private TextField locationField;
 
     // Review submission controls
     @FXML private TextField reviewTextArea;
@@ -97,6 +110,11 @@ public class MainController {
         // Selection listener for business list
         businessList.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null) {
+                User currentUser = dataManager.getCurrentUser();
+                if (currentUser != null) {
+                    currentUser.addViewedBusiness(newVal.getId());
+                    dataManager.updateUser(currentUser);
+                }
                 showBusinessDetails(newVal);
             }
         });
@@ -131,9 +149,20 @@ public class MainController {
             reportButton.setOnAction(e -> showReport());
         }
 
+        if (faqButton != null) {
+            faqButton.setOnAction(e -> showFaq());
+        }
+
         // Select default category as "All" (show all businesses at first)
         allTab.setSelected(true);
         handleCategoryTab();
+
+        if (dataManager.consumeJustSignedUp()) {
+            User currentUser = dataManager.getCurrentUser();
+            if (currentUser != null) {
+                Platform.runLater(() -> showWalkthrough(currentUser));
+            }
+        }
     }
 
     /**
@@ -211,16 +240,17 @@ public class MainController {
         dataManager.addReview(new Review("user@example.com", "Joe's Cafe", 5,
                 "Best coffee in town! The pastries are amazing."));
         dataManager.addReview(new Review("user@example.com", "Green Yoga", 5,
-                "Such a peaceful environment. Great instructors!"));
+                "Great instructors and a peaceful atmosphere."));
     }
 
-    // Info about the business
     private void showBusinessDetails(Business business) {
+        if (business == null) return;
+
         selectedBusiness = business;
 
         // Basic info
         nameLabel.setText(business.getName());
-        addressLabel.setText("Address: " + toStreetOnly(business.getAddress()));
+        addressLabel.setText("Address: " + (business.getAddress() != null ? business.getAddress() : ""));
         ratingLabel.setText(String.format("Rating: %.1f / 5.0", business.getRating()));
         descriptionArea.setText(business.getDescription());
 
@@ -235,18 +265,6 @@ public class MainController {
 
         // Reset review submission form
         resetReviewForm();
-    }
-
-    private String toStreetOnly(String address) {
-        if (address == null) return "";
-        String trimmed = address.trim();
-        if (trimmed.isEmpty()) return "";
-
-        int commaIndex = trimmed.indexOf(',');
-        if (commaIndex >= 0) {
-            return trimmed.substring(0, commaIndex).trim();
-        }
-        return trimmed;
     }
 
     // Update favorite button depending on whether business is pressed or not
@@ -358,9 +376,54 @@ public class MainController {
                     reviewBox.getChildren().add(starsLabel);
                 }
 
+                User currentUser = dataManager.getCurrentUser();
+                if (currentUser != null
+                        && review.getUserEmail() != null
+                        && currentUser.getEmail() != null
+                        && review.getUserEmail().equalsIgnoreCase(currentUser.getEmail())) {
+                    Button deleteButton = new Button("Delete");
+                    deleteButton.getStyleClass().add("secondary");
+                    deleteButton.setOnAction(e -> handleDeleteReview(review));
+                    HBox actions = new HBox(10, deleteButton);
+                    reviewBox.getChildren().add(actions);
+                }
+
                 reviewsBox.getChildren().add(reviewBox);
             }
         }
+    }
+
+    private void handleDeleteReview(Review review) {
+        if (review == null) return;
+        User currentUser = dataManager.getCurrentUser();
+        if (currentUser == null) {
+            showAlert("Please log in to delete your review.");
+            return;
+        }
+        if (review.getUserEmail() == null || currentUser.getEmail() == null
+                || !review.getUserEmail().equalsIgnoreCase(currentUser.getEmail())) {
+            showAlert("You can only delete your own reviews.");
+            return;
+        }
+
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Delete Review");
+        confirm.setHeaderText("Delete your review?");
+        confirm.setContentText("This action cannot be undone.");
+        applyThemeToDialog(confirm.getDialogPane());
+
+        Optional<ButtonType> result = confirm.showAndWait();
+        if (result.isEmpty() || result.get() != ButtonType.OK) return;
+
+        boolean deleted = dataManager.deleteReview(review);
+        if (!deleted) {
+            showAlert("Could not delete review. Please try again.");
+            return;
+        }
+        if (selectedBusiness != null) {
+            showBusinessDetails(selectedBusiness);
+        }
+        showAlert("Review deleted.");
     }
 
     // Submit review + business rating
@@ -396,7 +459,11 @@ public class MainController {
         }
 
         // Text review
-        String reviewText = reviewTextArea.getText().trim();
+        String reviewText = reviewTextArea.getText() != null ? reviewTextArea.getText().trim() : "";
+        if (reviewText.isEmpty()) {
+            showAlert("Review text cannot be blank.");
+            return;
+        }
 
         // Create and save
         Review review = new Review(currentUser.getEmail(), selectedBusiness.getName(), rating, reviewText);
@@ -471,6 +538,12 @@ public class MainController {
                     || b.getCategory().toLowerCase().contains(query)));
         }
 
+        // Apply location filter (town or ZIP)
+        String locationQuery = (locationField != null) ? locationField.getText().trim().toLowerCase() : "";
+        if (!locationQuery.isEmpty()) {
+            filtered.removeIf(b -> b.getAddress() == null || !b.getAddress().toLowerCase().contains(locationQuery));
+        }
+
         // Update the list view
         ObservableList<Business> observableList = FXCollections.observableArrayList(filtered);
         businessList.setItems(observableList);
@@ -533,7 +606,62 @@ public class MainController {
         }
 
         StringBuilder sb = new StringBuilder();
-        sb.append("Report (current filters)\n\n");
+        sb.append("Your Report\n\n");
+
+        User currentUser = dataManager.getCurrentUser();
+        if (currentUser == null) {
+            sb.append("Log in to see your viewing history, favorites, and reviews.\n\n");
+        } else {
+            sb.append("Account: ").append(currentUser.getEmail() != null ? currentUser.getEmail() : "").append("\n\n");
+
+            sb.append("Recently viewed:\n");
+            List<String> viewed = currentUser.getViewedBusinessIds();
+            if (viewed.isEmpty()) {
+                sb.append("- No businesses viewed yet\n");
+            } else {
+                for (int i = 0; i < Math.min(10, viewed.size()); i++) {
+                    Business b = dataManager.getBusinessById(viewed.get(i));
+                    sb.append("- ").append(b != null ? b.getName() : viewed.get(i)).append("\n");
+                }
+            }
+
+            sb.append("\nFavorites:\n");
+            Set<String> favorites = currentUser.getFavoriteBusinessIds();
+            if (favorites.isEmpty()) {
+                sb.append("- No favorites yet\n");
+            } else {
+                int count = 0;
+                for (String id : favorites) {
+                    if (count >= 10) break;
+                    Business b = dataManager.getBusinessById(id);
+                    sb.append("- ").append(b != null ? b.getName() : id).append("\n");
+                    count++;
+                }
+            }
+
+            sb.append("\nBusinesses you reviewed:\n");
+            List<Review> myReviews = dataManager.getReviewsForUser(currentUser.getEmail());
+            if (myReviews.isEmpty()) {
+                sb.append("- No reviews yet\n");
+            } else {
+                Set<String> reviewedBusinesses = new HashSet<>();
+                for (Review r : myReviews) {
+                    if (r != null && r.getBusinessName() != null) {
+                        reviewedBusinesses.add(r.getBusinessName());
+                    }
+                }
+                int count = 0;
+                for (String name : reviewedBusinesses) {
+                    if (count >= 10) break;
+                    sb.append("- ").append(name).append("\n");
+                    count++;
+                }
+            }
+
+            sb.append("\n---\n\n");
+        }
+
+        sb.append("Businesses shown (current filters)\n\n");
         sb.append("Businesses shown: ").append(totalBusinesses).append("\n");
         sb.append(String.format("Average rating: %.2f\n", avgRating));
         sb.append("Total reviews (across shown businesses): ").append(totalReviews).append("\n\n");
@@ -606,6 +734,251 @@ public class MainController {
     @FXML
     private void handleSearch() {
         applyFilters(getSelectedCategory());
+    }
+
+    @FXML
+    private void handleLocationSearch() {
+        applyFilters(getSelectedCategory());
+    }
+
+    private void showFaq() {
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("Help Center");
+        dialog.setHeaderText("Community Questions & Answers");
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
+
+        ListView<ForumThread> threadList = new ListView<>();
+        threadList.getStyleClass().add("list-view");
+        threadList.setCellFactory(lv -> new ListCell<>() {
+            @Override
+            protected void updateItem(ForumThread item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    String title = item.getTitle() != null ? item.getTitle() : "(untitled)";
+                    String author = item.getAuthor() != null ? item.getAuthor() : "";
+                    setText(title + (author.isBlank() ? "" : " — " + author));
+                }
+            }
+        });
+
+        List<ForumThread> threads = new ArrayList<>(dataManager.getForumThreads());
+        threadList.setItems(FXCollections.observableArrayList(threads));
+
+        Label titleLabel = new Label("Select a question");
+        titleLabel.getStyleClass().add("h2");
+        Label authorLabel = new Label("");
+        authorLabel.getStyleClass().add("subtle");
+        TextArea questionArea = new TextArea();
+        questionArea.setEditable(false);
+        questionArea.setWrapText(true);
+
+        VBox repliesBox = new VBox(10);
+        ScrollPane repliesScroll = new ScrollPane(repliesBox);
+        repliesScroll.setFitToWidth(true);
+        repliesScroll.setPrefHeight(260);
+
+        TextField replyField = new TextField();
+        replyField.setPromptText("Write a reply...");
+        Button replyButton = new Button("Reply");
+        replyButton.getStyleClass().add("primary");
+        replyButton.setDisable(true);
+
+        Button askButton = new Button("Ask Question");
+        askButton.getStyleClass().add("accent");
+
+        HBox replyRow = new HBox(10, replyField, replyButton);
+        HBox.setHgrow(replyField, Priority.ALWAYS);
+
+        VBox rightPane = new VBox(10, new HBox(10, askButton), titleLabel, authorLabel, questionArea,
+                new Label("Replies"), repliesScroll, replyRow);
+        rightPane.setPrefWidth(560);
+
+        SplitPane split = new SplitPane();
+        VBox leftPane = new VBox(10, new Label("Questions"), threadList);
+        leftPane.setPrefWidth(360);
+        VBox.setVgrow(threadList, Priority.ALWAYS);
+        split.getItems().addAll(leftPane, rightPane);
+        split.setDividerPositions(0.38);
+
+        final ForumThread[] selectedThread = new ForumThread[]{null};
+
+        Runnable refreshThreadList = () -> {
+            threadList.setItems(FXCollections.observableArrayList(new ArrayList<>(dataManager.getForumThreads())));
+        };
+
+        Runnable refreshReplies = () -> {
+            repliesBox.getChildren().clear();
+            ForumThread t = selectedThread[0];
+            if (t == null) return;
+
+            List<ForumReply> replies = t.getReplies();
+            if (replies.isEmpty()) {
+                Label none = new Label("No replies yet. Be the first to respond.");
+                none.getStyleClass().add("subtle");
+                repliesBox.getChildren().add(none);
+                return;
+            }
+
+            for (ForumReply r : replies) {
+                VBox bubble = new VBox(6);
+                bubble.getStyleClass().add("review-box");
+                Label who = new Label(r.getAuthor() != null ? r.getAuthor() : "");
+                who.getStyleClass().add("deal-title");
+                Label msg = new Label(r.getMessage() != null ? r.getMessage() : "");
+                msg.setWrapText(true);
+                bubble.getChildren().addAll(who, msg);
+                repliesBox.getChildren().add(bubble);
+            }
+        };
+
+        threadList.getSelectionModel().selectedItemProperty().addListener((obs, oldV, newV) -> {
+            selectedThread[0] = newV;
+            if (newV == null) {
+                titleLabel.setText("Select a question");
+                authorLabel.setText("");
+                questionArea.setText("");
+                replyButton.setDisable(true);
+                repliesBox.getChildren().clear();
+                return;
+            }
+
+            titleLabel.setText(newV.getTitle() != null ? newV.getTitle() : "(untitled)");
+            authorLabel.setText(newV.getAuthor() != null ? "Asked by " + newV.getAuthor() : "");
+            questionArea.setText(newV.getQuestion() != null ? newV.getQuestion() : "");
+            replyButton.setDisable(false);
+            refreshReplies.run();
+        });
+
+        askButton.setOnAction(e -> {
+            Dialog<ForumThread> askDialog = new Dialog<>();
+            askDialog.setTitle("Ask a Question");
+            askDialog.setHeaderText("Post a new question");
+            askDialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL, ButtonType.OK);
+
+            TextField titleField = new TextField();
+            titleField.setPromptText("Title");
+            TextArea questionField = new TextArea();
+            questionField.setPromptText("Write your question...");
+            questionField.setWrapText(true);
+            questionField.setPrefRowCount(6);
+            VBox askContent = new VBox(10, titleField, questionField);
+            askDialog.getDialogPane().setContent(askContent);
+            applyThemeToDialog(askDialog.getDialogPane());
+
+            askDialog.setResultConverter(bt -> {
+                if (bt != ButtonType.OK) return null;
+                String title = titleField.getText() != null ? titleField.getText().trim() : "";
+                String q = questionField.getText() != null ? questionField.getText().trim() : "";
+                if (title.isEmpty() || q.isEmpty()) return null;
+
+                User u = dataManager.getCurrentUser();
+                String author = (u != null && u.getEmail() != null) ? u.getEmail() : "Anonymous";
+                return new ForumThread("t-" + UUID.randomUUID(), title, q, author, System.currentTimeMillis());
+            });
+
+            Optional<ForumThread> result = askDialog.showAndWait();
+            if (result.isEmpty() || result.get() == null) return;
+            dataManager.addForumThread(result.get());
+            refreshThreadList.run();
+        });
+
+        replyButton.setOnAction(e -> {
+            ForumThread t = selectedThread[0];
+            if (t == null) return;
+
+            String msg = replyField.getText() != null ? replyField.getText().trim() : "";
+            if (msg.isEmpty()) return;
+
+            User u = dataManager.getCurrentUser();
+            String author = (u != null && u.getEmail() != null) ? u.getEmail() : "Anonymous";
+            ForumReply reply = new ForumReply(author, msg, System.currentTimeMillis());
+
+            dataManager.addForumReply(t.getId(), reply);
+            replyField.clear();
+
+            for (ForumThread updated : dataManager.getForumThreads()) {
+                if (updated != null && updated.getId() != null && updated.getId().equalsIgnoreCase(t.getId())) {
+                    selectedThread[0] = updated;
+                    break;
+                }
+            }
+            refreshReplies.run();
+        });
+
+        dialog.getDialogPane().setContent(split);
+        dialog.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+        dialog.getDialogPane().setMinWidth(Region.USE_PREF_SIZE);
+        applyThemeToDialog(dialog.getDialogPane());
+        dialog.showAndWait();
+    }
+
+    private void showWalkthrough(User user) {
+        if (user == null) return;
+
+        showTutorialStepNear(allTab,
+                "Welcome to ByteSizedApp",
+                "Use the category tabs at the top to browse businesses. Use Favorites/Deals toggles to narrow down results.");
+        showTutorialStepNear(locationField,
+                "Find businesses near you",
+                "Type a Union County town name (like \"Westfield\") or a ZIP code (like \"07090\") in the Town/ZIP box to filter results.");
+        showTutorialStepNear(favoriteButton,
+                "Favorites",
+                "Click ☆ Favorite to save businesses you like (favorites are tied to your account). Use the Favorites Only filter to narrow results.");
+        showTutorialStepNear(reviewTextArea,
+                "Reviews",
+                "Select a star rating and write a short review before submitting. Reviews can’t be blank.");
+        showTutorialStepNear(reportButton,
+                "Sorting & Report",
+                "Use the sort dropdown to organize results. Click Report to see a summary and your activity.");
+
+        user.setTutorialSeen(true);
+        dataManager.updateUser(user);
+    }
+
+    private void showTutorialStepNear(Node anchor, String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("How to Use the App");
+        alert.setHeaderText(title);
+        alert.setContentText(message);
+        applyThemeToDialog(alert.getDialogPane());
+
+        alert.setOnShown(e -> {
+            if (anchor == null) return;
+            Bounds bounds = anchor.localToScreen(anchor.getBoundsInLocal());
+            if (bounds == null) return;
+
+            Window window = alert.getDialogPane().getScene().getWindow();
+            if (window == null) return;
+
+            Rectangle2D visual = Screen.getPrimary().getVisualBounds();
+
+            double x = bounds.getMaxX() + 12;
+            double y = bounds.getMinY();
+
+            double w = window.getWidth();
+            double h = window.getHeight();
+
+            if (x + w > visual.getMaxX()) {
+                x = bounds.getMinX() - w - 12;
+            }
+            if (x < visual.getMinX()) {
+                x = visual.getMinX() + 12;
+            }
+
+            if (y + h > visual.getMaxY()) {
+                y = visual.getMaxY() - h - 12;
+            }
+            if (y < visual.getMinY()) {
+                y = visual.getMinY() + 12;
+            }
+
+            window.setX(x);
+            window.setY(y);
+        });
+
+        alert.showAndWait();
     }
 
     //alert when something happens

@@ -15,7 +15,8 @@
         <Insets top="20" right="20" bottom="20" left="20"/>
     </padding>
 
-    <Label text="Create Account" styleClass="h1" />
+    <Label text="Shop Search" styleClass="h1" />
+    <Label text="Create Account" styleClass="h2" />
 
     <TextField fx:id="nameField"
                promptText="Full Name"

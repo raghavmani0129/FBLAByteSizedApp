@@ -101,9 +101,17 @@ public class SignupController {
             return;
         }
 
-        // Account created successfully, so return to login screen
-        errorLabel.setText("Account created! Redirecting to login...");
-        Main.loadScene("view/login.fxml", 400, 380);
+        // Account created successfully: auto-log in and send directly to main app
+        var user = dataManager.login(email, password);
+        if (user == null) {
+            errorLabel.setText("Account created, but login failed. Please log in.");
+            Main.loadScene("view/login.fxml", 400, 380);
+            return;
+        }
+
+        dataManager.setCurrentUser(user);
+        dataManager.setJustSignedUp(true);
+        Main.loadScene("view/main.fxml", 1100, 700);
     }
 
     //back to login screen

@@ -226,7 +226,24 @@
 
 /* Dialogs */
 .dialog-pane {
-    -fx-background-color: white;
+    -fx-background-color: -surface;
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+    -fx-border-color: rgba(11,18,32,0.12);
+    -fx-effect: dropshadow(gaussian, rgba(11,18,32,0.18), 28, 0.25, 0, 14);
+}
+
+.dialog-pane:header .header-panel {
+    -fx-background-color: -surface-2;
+    -fx-border-color: rgba(11,18,32,0.10);
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 14 16 14 16;
+}
+
+.dialog-pane:header .header-panel .label {
+    -fx-text-fill: -text;
+    -fx-font-size: 16px;
+    -fx-font-weight: 800;
 }
 
 .dialog-pane .label {
@@ -241,6 +258,45 @@
     -fx-border-radius: 12;
     -fx-padding: 10 14 10 14;
     -fx-font-weight: 700;
+}
+
+.dialog-pane .content {
+    -fx-background-color: transparent;
+}
+
+/* Accordion / FAQ */
+.accordion {
+    -fx-background-color: transparent;
+}
+
+.titled-pane {
+    -fx-text-fill: -text;
+}
+
+.titled-pane > .title {
+    -fx-background-color: rgba(255,255,255,0.78);
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-border-color: rgba(11,18,32,0.12);
+    -fx-font-weight: 800;
+    -fx-padding: 12 12 12 12;
+}
+
+.titled-pane > .title .text {
+    -fx-fill: -text;
+}
+
+.titled-pane:expanded > .title {
+    -fx-background-color: rgba(42,66,184,0.16);
+    -fx-border-color: rgba(42,66,184,0.30);
+}
+
+.titled-pane > .content {
+    -fx-background-color: rgba(255,255,255,0.72);
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-border-color: rgba(11,18,32,0.10);
+    -fx-padding: 12;
 }
 
 .report-area {

@@ -24,11 +24,13 @@ public class DataManager {
     private final String BUSINESS_FILE = "data/businesses.json";
     private final String REVIEW_FILE = "data/reviews.json";
     private final String DEAL_FILE = "data/deals.json";
+    private final String FORUM_FILE = "data/forum.json";
 
     private List<User> users;
     private List<Business> businesses;
     private List<Review> reviews;
     private List<Deal> deals;
+    private List<ForumThread> forumThreads;
 
     private final Gson gson = new GsonBuilder()
             .registerTypeAdapter(LocalDate.class, (com.google.gson.JsonDeserializer<LocalDate>)
@@ -50,6 +52,7 @@ public class DataManager {
         businesses = loadList(BUSINESS_FILE, new TypeToken<List<Business>>(){}.getType());
         reviews = loadList(REVIEW_FILE, new TypeToken<List<Review>>(){}.getType());
         deals = loadList(DEAL_FILE, new TypeToken<List<Deal>>(){}.getType());
+        forumThreads = loadList(FORUM_FILE, new TypeToken<List<ForumThread>>(){}.getType());
 
         // Ensure businesses reflect the presence of deals loaded from disk
         if (deals != null) {
@@ -59,6 +62,36 @@ public class DataManager {
                 if (b != null) {
                     b.setHasDeal(true);
                 }
+            }
+        }
+
+        if (forumThreads == null) {
+            forumThreads = new ArrayList<>();
+        }
+    }
+
+    // Forum
+
+    public List<ForumThread> getForumThreads() {
+        if (forumThreads == null) {
+            forumThreads = new ArrayList<>();
+        }
+        return forumThreads;
+    }
+
+    public void addForumThread(ForumThread thread) {
+        if (thread == null) return;
+        getForumThreads().add(thread);
+        saveList(FORUM_FILE, forumThreads);
+    }
+
+    public void addForumReply(String threadId, ForumReply reply) {
+        if (threadId == null || reply == null) return;
+        for (ForumThread t : getForumThreads()) {
+            if (t != null && t.getId() != null && t.getId().equalsIgnoreCase(threadId)) {
+                t.getReplies().add(reply);
+                saveList(FORUM_FILE, forumThreads);
+                return;
             }
         }
     }
@@ -129,12 +162,24 @@ public class DataManager {
     //track what each user is doing and associate their movements with their account
     private User currentUser = null;
 
+    private boolean justSignedUp = false;
+
     public void setCurrentUser(User user) {
         this.currentUser = user;
     }
 
     public User getCurrentUser() {
         return currentUser;
+    }
+
+    public void setJustSignedUp(boolean justSignedUp) {
+        this.justSignedUp = justSignedUp;
+    }
+
+    public boolean consumeJustSignedUp() {
+        boolean value = justSignedUp;
+        justSignedUp = false;
+        return value;
     }
 
     public void updateUser(User user) {
@@ -248,6 +293,36 @@ public class DataManager {
         return result;
     }
 
+    public List<Review> getReviewsForUser(String userEmail) {
+        List<Review> result = new ArrayList<>();
+        if (userEmail == null) return result;
+        for (Review r : reviews) {
+            if (r != null && r.getUserEmail() != null && r.getUserEmail().equalsIgnoreCase(userEmail)) {
+                result.add(r);
+            }
+        }
+        return result;
+    }
+
+    public boolean deleteReview(Review review) {
+        if (review == null) return false;
+
+        boolean removed = reviews.removeIf(r ->
+                r != null
+                        && safeEqualsIgnoreCase(r.getUserEmail(), review.getUserEmail())
+                        && safeEqualsIgnoreCase(r.getBusinessName(), review.getBusinessName())
+                        && r.getStars() == review.getStars()
+                        && safeEquals(r.getText(), review.getText())
+        );
+
+        if (removed) {
+            saveList(REVIEW_FILE, reviews);
+            updateBusinessRating(review.getBusinessName());
+        }
+
+        return removed;
+    }
+
     private void updateBusinessRating(String businessName) {
         double sum = 0;
         int count = 0;
@@ -264,6 +339,18 @@ public class DataManager {
                 break;
             }
         }
+    }
+
+    private boolean safeEqualsIgnoreCase(String a, String b) {
+        if (a == null && b == null) return true;
+        if (a == null || b == null) return false;
+        return a.equalsIgnoreCase(b);
+    }
+
+    private boolean safeEquals(String a, String b) {
+        if (a == null && b == null) return true;
+        if (a == null || b == null) return false;
+        return a.equals(b);
     }
 
     //deals

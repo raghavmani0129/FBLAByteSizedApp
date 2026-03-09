@@ -4,11 +4,15 @@ util/DataManager$1.class
 model/Deal.class
 controller/LoginController.class
 controller/SignupController.class
+controller/MainController$1.class
+model/ForumReply.class
 util/DataManager$4.class
 util/DataManager.class
 util/CaptchaUtil.class
 app/Main.class
+util/DataManager$5.class
 model/Review.class
+model/ForumThread.class
 model/User.class
 util/DataManager$3.class
 model/Business.class

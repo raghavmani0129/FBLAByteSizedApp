@@ -21,7 +21,7 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         primaryStage = stage;
-        primaryStage.setTitle("Byte-Sized Business Boost");
+        primaryStage.setTitle("Shop Search");
         primaryStage.setResizable(true);
 
         // Load login screen first 
